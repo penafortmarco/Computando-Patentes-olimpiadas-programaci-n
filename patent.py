@@ -22,12 +22,12 @@ def old_patent_format(patent, k):
     that i have to add after "k" times. If incremente > 999 it means that will at least
     one letter to add. Else case means that only numbers have to be added. Lastly return 
     letters and numbers in a str."""
-    
+
     try:
         letters = list(patent[:3])
         number = int(patent[3:])
         increment = (number + k)
-    except(ValueError):
+    except (ValueError):
         error_message = 'Not a valid patent'
         return error_message
 
@@ -64,6 +64,30 @@ def old_patent_letters(letters, increment):
     return ''.join(letter_0 + letter_1 + letter_2)
 
 
+def new_patent_format(patent, k):
+    first_letters = list(patent[:2])
+    last_letters = list(patent[5:])
+    number = int(patent[2:5])
+
+    return new_patent_letters(last_letters, k)
+
+
+def new_patent_letters(letters, k):
+    index_1 = alphabet.index(letters[1])
+    index_0 = alphabet.index(letters[0])
+    increment = (index_1 + k)
+
+    # incremento desde index hasta la proxima letra
+    result_1 = (increment) % 26
+    result_0 = (increment) // 26  # incrementos de la siguiente letra
+
+    letter_1 = alphabet[result_1]
+    letter_0 = alphabet[index_0 + result_0]
+
+    return (letter_0 + letter_1)
+
+
+
 def number_to_str(number):
     """It transform the input number to string in a right format for the patent.
     Example: if number = 1 it returns 001. Else case just transform number to 
@@ -81,5 +105,4 @@ def number_to_str(number):
     return str_number
 
 
-
-
+print(new_patent_format('AA000AAA', 3))
