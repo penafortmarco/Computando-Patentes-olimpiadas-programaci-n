@@ -1,27 +1,28 @@
 alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
             'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-
+alphabet_size = len(alphabet)
 
 def next_patent(patent, k):
     """Validates the right format for the patent. It also manage error cases.
     Then call the functions that are needed to return the next "k" patent."""
-
     if len(patent) < 6 or len(patent) > 7:
-        error_message = 'Not a valid patent.'
-        return error_message
-    if k <= 0:
+            error_message = 'Not a valid patent.'
+            return error_message
+    if k <= 0 or type(k) != int:
         error_message = 'K is not a valid argument.'
         return error_message
+    
+    try:
+        if len(patent) == 6:
+            return get_old_patent_format(patent, k)
+        if len(patent) == 7:
+            return get_new_patent_format(patent, k)
+    except Exception as e:
+        print(e)
 
-    if len(patent) == 6:
-        return old_patent_format(patent, k)
 
-
-def old_patent_format(patent, k):
-    """Transform the patent in the old format patent. Then calculates numbers and letters 
-    that i have to add after "k" times. If incremente > 999 it means that will at least
-    one letter to add. Else case means that only numbers have to be added. Lastly return 
-    letters and numbers in a str."""
+def get_old_patent_format(patent, k):
+    """"""
 
     try:
         letters = list(patent[:3])
@@ -31,19 +32,22 @@ def old_patent_format(patent, k):
         error_message = 'Not a valid patent'
         return error_message
 
-    increment_number = (increment % 1000)
-    increment_letter = (increment // 1000)
+    (result_number, increment_letter) = get_patent_numbers(increment)
 
-    if (increment) > 999:
-        increment_letter = old_patent_letters(letters, increment_letter)
-    else:
-        increment_letter = letters
-    increment_number = number_to_str(increment_number)
+    if increment_letter > 0:
+        letters = get_old_patent_letters(letters, increment_letter)
 
-    return (increment_letter + increment_number)
+    new_number = number_to_str(result_number)
+
+    return (''.join(letters) + new_number)
 
 
-def old_patent_letters(letters, increment):
+def get_patent_numbers(increment):
+    (result_number, increment_letter) = int_division(increment, 1000)
+    return (result_number, increment_letter)
+
+
+def get_old_patent_letters(letters, increment):
     """Takes the original letters of the patent and check the last one first and increase
     according to the var increment. Then, the letter will move n positions from the index
     to find the next letter. The other results indicate if the next letters has to be modified.
@@ -53,39 +57,71 @@ def old_patent_letters(letters, increment):
     index_1 = alphabet.index(letters[1])
     index_0 = alphabet.index(letters[0])
 
-    result_2 = (index_2 + increment) % 26
-    result_1 = (index_2 + increment) // 26
-    result_0 = (index_1 + increment) // 26
+    (letter_2, increment_number_2) = get_letter_and_increment(
+        index_2 + increment, alphabet_size)
+    (letter_1, increment_number_1) = get_letter_and_increment(
+        index_1 + increment_number_2, alphabet_size)
+    (letter_0, increment_number_0) = get_letter_and_increment(
+        index_0 + increment_number_1, alphabet_size)
+    if increment_number_0 > 0:
+        raise Exception('Se re fue')
 
-    letter_2 = alphabet[result_2]
-    letter_1 = alphabet[index_1 + result_1]
-    letter_0 = alphabet[index_0 + result_0]
-
-    return ''.join(letter_0 + letter_1 + letter_2)
+    return str(letter_0) + str(letter_1) + str(letter_2)
 
 
-def new_patent_format(patent, k):
+def int_division(number, divider):
+    result_number = number % divider
+    increment_number = number // divider
+
+    return (result_number, increment_number)
+
+
+def get_index_letter_and_increment(number, divider):
+    (number, divider) = int_division(number, divider)
+    return (number, divider)
+
+
+def get_letter_and_increment(number, divider):
+    if divider == 0:
+        return (number, 0)
+    (number, increment) = get_index_letter_and_increment(number, divider)
+    letter = alphabet[number]
+
+    return (letter, increment)
+
+
+def get_new_patent_format(patent, k):
     first_letters = list(patent[:2])
-    last_letters = list(patent[5:])
     number = int(patent[2:5])
+    last_letters = list(patent[5:])
 
-    return new_patent_letters(last_letters, k)
+    (result_last_letters, number_increment) = get_new_patent_letters(
+        last_letters, k, False)
+    (result_number, letter_increment) = get_patent_numbers(number + number_increment)
+    result_first_letters = get_new_patent_letters(
+        first_letters, letter_increment, True)
+    result_number = number_to_str(result_number)
+
+    return (result_first_letters + result_number + result_last_letters)
 
 
-def new_patent_letters(letters, k):
+def get_new_patent_letters(letters, increment, is_first):
+
     index_1 = alphabet.index(letters[1])
     index_0 = alphabet.index(letters[0])
-    increment = (index_1 + k)
 
-    # incremento desde index hasta la proxima letra
-    result_1 = (increment) % 26
-    result_0 = (increment) // 26  # incrementos de la siguiente letra
-
-    letter_1 = alphabet[result_1]
-    letter_0 = alphabet[index_0 + result_0]
-
-    return (letter_0 + letter_1)
-
+    (letter_1, increment_number_1) = get_letter_and_increment(
+        index_1 + increment, alphabet_size)
+    (letter_0, increment_number_0) = get_letter_and_increment(
+        index_0 + increment_number_1, alphabet_size)
+    if is_first:
+        if increment_number_0 > 0:
+            # tirar error, no existen más patentes
+            pass
+        else:
+            return ''.join(list(letter_0 + letter_1))
+    else:
+        return (''.join(list(letter_0 + letter_1)), increment_number_0)
 
 
 def number_to_str(number):
@@ -103,6 +139,3 @@ def number_to_str(number):
         str_number = str(number)
 
     return str_number
-
-
-print(new_patent_format('AA000AAA', 3))
