@@ -4,20 +4,19 @@ alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
 alphabet_size = len(alphabet)
 
 
+def int_division(number, divider):
+    """Return a rest and a result of a int division (no decimals)"""
+
+    rest = number % divider
+    result = number // divider
+
+    return (rest, result)
+
 def get_patent_numbers(increment):
     """Calls the int_division with the increment(patent number + k) as first argument and 1000 as the second argument.
     it will return the new patent number as the rest and the increment of letters."""
 
     (result_number, increment_letter) = int_division(increment, 1000)
-    return (result_number, increment_letter)
-
-
-def int_division(number, divider):
-    """Return a result and a rest of a int division (no decimals)"""
-
-    result_number = number % divider
-    increment_letter = number // divider
-
     return (result_number, increment_letter)
 
 
