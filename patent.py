@@ -1,45 +1,21 @@
-alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
-
+from old_patent import get_old_patent_format
+from new_patent import get_new_patent_format
 
 def next_patent(patent, k):
+    """Validates the right format for the patent. It also manage error cases.
+    Then call the functions that are needed to return the next "k" patent."""
     if len(patent) < 6 or len(patent) > 7:
-        error_message = 'Not a valid patent.'
-        return error_message
-    if k <= 0:
+            error_message = 'Not a valid patent.'
+            return error_message
+    if k <= 0 or type(k) != int:
         error_message = 'K is not a valid argument.'
         return error_message
+    
+    try:
+        if len(patent) == 6:
+            return get_old_patent_format(patent, k)
+        if len(patent) == 7:
+            return get_new_patent_format(patent, k)
+    except Exception as e:
+        print(e)
 
-    return old_format_patent(patent, k)
-
-
-def old_format_patent(patent, k):
-    letters = list(patent[:3])
-    number = int(patent[3:])
-    while (True):
-        if number == 0:
-            str_number = '000'
-        if (k <= 0):
-            break
-        number += k
-        if number <= 999:
-            if number <= 9:
-                str_number = '00' + str(number)
-            elif number <= 99:
-                str_number = '0' + str(number)
-            else:
-                str_number = str(number)
-            break
-        if number > 999:
-            k = number - 999 - 1
-            number = 0
-            for i in range(len(letters)-1, -1, -1):
-                if letters[i] != 'Z':
-                    next_letter = alphabet.index(letters[i]) + 1
-                    letters[i] = alphabet[next_letter]
-                    break  # Acá había else: continue
-
-    return (''.join(letters) + str_number)
-
-
-print(next_patent("AAA000", 1))
