@@ -25,8 +25,6 @@ def get_letter_and_increment(number, divider):
     """Calls int_division with the increment and a total. After that, it will return an index for replace the letter.
     Then return the new_letter and the increment of the next letter (It could be 0)."""
 
-    if divider == 0:
-        return (number, 0)
     (new_index, increment) = int_division(number, divider)
     new_letter = alphabet[new_index]
 
